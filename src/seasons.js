@@ -224,6 +224,10 @@ export function buildSeasonParticles(scene, { count = 500 } = {}) {
     transparent: true, depthWrite: false,
   });
   const anchorsFlat = mat.uniforms.uAnchors.value;
+  // Persistent anchor slots: slot i stays bound to the same tree across frames so
+  // a falling leaf isn't reassigned mid-air. A slot is only freed once its tree
+  // leaves range (then a new tree can take that index).
+  const slotTrees = new Array(MAX_LEAF_ANCHORS).fill(null);
 
   const points = new THREE.Points(geom, mat);
   points.frustumCulled = false;
@@ -251,22 +255,49 @@ export function buildSeasonParticles(scene, { count = 500 } = {}) {
     mat.uniforms.uTime.value = t;
     mat.uniforms.uCamera.value.copy(camera.position);
 
-    // Leaves only: bind them to the nearest trees so they shed from canopies, not
-    // the open sky. Refresh the anchor list each frame (closest N real trees).
+    // Leaves only: bind each leaf to a nearby tree's canopy via PERSISTENT slots,
+    // so the leaf stays on that tree for its whole fall instead of being reassigned
+    // every frame as the camera moves (which made them vanish mid-air).
     if (currentType === 'leaves' && world?.getNearbyTrees) {
       const cx = camera.position.x, cz = camera.position.z;
-      const near = world.getNearbyTrees(cx, cz, mat.uniforms.uBoxW.value)
-        .filter((tr) => tr.colRadius > 0.28)          // real trees, not bushes
-        .sort((a, b) => ((a.x - cx) ** 2 + (a.z - cz) ** 2) - ((b.x - cx) ** 2 + (b.z - cz) ** 2));
-      const n = Math.min(MAX_LEAF_ANCHORS, near.length);
-      for (let i = 0; i < n; i++) {
-        const tr = near[i];
+      const box = mat.uniforms.uBoxW.value;
+      const d2 = (tr) => (tr.x - cx) ** 2 + (tr.z - cz) ** 2;
+
+      // Keep range is a bit larger than the spawn box (hysteresis) so a tree near
+      // the edge — or a stale ref after a world regenerate — gets dropped cleanly.
+      const keep = world.getNearbyTrees(cx, cz, box * 1.3).filter((tr) => tr.colRadius > 0.28);
+      const keepSet = new Set(keep);
+      for (let i = 0; i < MAX_LEAF_ANCHORS; i++) if (slotTrees[i] && !keepSet.has(slotTrees[i])) slotTrees[i] = null;
+
+      // Fill freed slots with the nearest in-box trees not already slotted.
+      const slotted = new Set(slotTrees);
+      const avail = keep.filter((tr) => !slotted.has(tr) && d2(tr) <= box * box).sort((a, b) => d2(a) - d2(b));
+      for (let i = 0, ai = 0; i < MAX_LEAF_ANCHORS && ai < avail.length; i++) if (!slotTrees[i]) slotTrees[i] = avail[ai++];
+
+      // Write anchors for real slots; remember which are real.
+      const filled = [];
+      for (let i = 0; i < MAX_LEAF_ANCHORS; i++) {
+        const tr = slotTrees[i];
+        if (!tr) continue;
         anchorsFlat[i * 4]     = tr.x;
         anchorsFlat[i * 4 + 1] = tr.z;
         anchorsFlat[i * 4 + 2] = terrainHeight(tr.x, tr.z);
-        anchorsFlat[i * 4 + 3] = 1.8 + 0.9 * tr.scale;    // canopy radius ~ tree size
+        anchorsFlat[i * 4 + 3] = 1.8 + 0.9 * tr.scale;     // canopy radius ~ tree size
+        filled.push(i);
       }
-      mat.uniforms.uAnchorCount.value = n;
+      // Duplicate a real slot into each empty one so the shader (which indexes all
+      // MAX_LEAF_ANCHORS) never reads stale data.
+      if (filled.length > 0) {
+        for (let i = 0, s = 0; i < MAX_LEAF_ANCHORS; i++) {
+          if (slotTrees[i]) continue;
+          const src = filled[s++ % filled.length];
+          anchorsFlat[i * 4]     = anchorsFlat[src * 4];
+          anchorsFlat[i * 4 + 1] = anchorsFlat[src * 4 + 1];
+          anchorsFlat[i * 4 + 2] = anchorsFlat[src * 4 + 2];
+          anchorsFlat[i * 4 + 3] = anchorsFlat[src * 4 + 3];
+        }
+      }
+      mat.uniforms.uAnchorCount.value = filled.length > 0 ? MAX_LEAF_ANCHORS : 0;
       mat.uniforms.uAnchors.needsUpdate = true;
     }
   }
