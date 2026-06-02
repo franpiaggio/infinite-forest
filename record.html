@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Infinite Forest · Record</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="hud"><span id="stats">initializing…</span></div>
+
+    <div id="overlay">
+      <div id="loading"><div class="ring"></div><div class="txt">Loading forest…</div></div>
+      <div class="card">
+        <h1>Record a clip</h1>
+        <p class="tagline">capture the demo for socials · downloads a .webm</p>
+
+        <div class="field">
+          <label for="f-tier">Graphics quality</label>
+          <select id="f-tier">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high" selected>High</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-res">Format</label>
+          <select id="f-res">
+            <option value="square">Square · 1080×1080 (IG / X / LinkedIn feed)</option>
+            <option value="portrait">Portrait · 1080×1920 (Reels / TikTok / Shorts)</option>
+            <option value="landscape">Landscape · 1920×1080 (YouTube / X)</option>
+            <option value="native">Native · current window size</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="field"><label for="f-secs">Duration (s)</label><input id="f-secs" type="number" min="3" max="120" step="1" value="30" /></div>
+          <div class="field"><label for="f-mbps">Bitrate (Mbps)</label><input id="f-mbps" type="number" min="4" max="80" step="1" value="24" /></div>
+        </div>
+
+        <div class="field">
+          <label for="f-music">Music start (s into the track)</label>
+          <input id="f-music" type="number" min="0" max="180" step="1" value="50" />
+        </div>
+
+        <div class="field">
+          <label for="f-rmode">Randomize cuts</label>
+          <select id="f-rmode">
+            <option value="manual" selected>Manual · you press R to the beat</option>
+            <option value="auto">Auto · on a timer</option>
+          </select>
+        </div>
+        <div class="row" id="auto-row" style="display:none;">
+          <div class="field"><label for="f-rint">R interval (s)</label><input id="f-rint" type="number" min="0.2" max="10" step="0.1" value="1.5" /></div>
+          <div class="field"><label for="f-roffset">Beat offset (s)</label><input id="f-roffset" type="number" min="0" max="5" step="0.05" value="0.5" /></div>
+        </div>
+
+        <button id="start-rec" class="btn btn-primary" type="button">● Start recording</button>
+        <p class="hint" id="rec-hint">Tip: maximize the window for native res.</p>
+      </div>
+    </div>
+
+    <a class="crosslink" href="./index.html">← Back to explore</a>
+
+    <script type="module" src="/src/record.js"></script>
+  </body>
+</html>

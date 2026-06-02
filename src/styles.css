@@ -1,0 +1,123 @@
+:root {
+  color-scheme: dark;
+  --accent:        oklch(0.83 0.12 82);
+  --accent-strong: oklch(0.88 0.13 84);
+  --accent-ink:    oklch(0.22 0.04 70);
+  --accent-line:   oklch(0.83 0.12 82 / 0.45);
+  --text:   oklch(0.89 0.012 240);
+  --muted:  oklch(0.64 0.015 245);
+  --faint:  oklch(0.52 0.015 245);
+  --card:   oklch(0.205 0.012 245);
+  --inset:  oklch(0.155 0.012 245);
+  --line:   oklch(1 0 0 / 0.08);
+  --scrim:  oklch(0.13 0.012 245 / 0.86);
+}
+html, body { margin: 0; height: 100%; background: oklch(0.12 0.01 245); overflow: hidden; }
+body { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--text); }
+#app { position: fixed; inset: 0; }
+#app canvas { display: block; width: 100%; height: 100%; }
+
+/* ── Splash / panel overlay ──────────────────────────────────────────── */
+#overlay {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: var(--scrim); backdrop-filter: blur(5px);
+  user-select: none; transition: opacity .25s ease; padding: 20px;
+}
+#overlay.hidden { opacity: 0; pointer-events: none; }
+#overlay.loading { background: oklch(0.12 0.01 245); backdrop-filter: none; }
+#overlay.loading .card { display: none; }
+#loading { display: none; flex-direction: column; align-items: center; gap: 16px; }
+#overlay.loading #loading { display: flex; }
+#loading .ring {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid var(--line); border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+#loading .txt { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.card {
+  width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto;
+  padding: 26px 26px 22px; border-radius: 16px;
+  background: var(--card); border: 1px solid var(--line);
+  text-align: left; box-shadow: 0 24px 60px oklch(0 0 0 / 0.45);
+}
+h1 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: 0.01em; text-align: center; color: var(--text); }
+.tagline { margin: 4px 0 24px; text-align: center; font-size: 11px; letter-spacing: 0.05em; color: var(--faint); }
+
+.group { margin-bottom: 16px; }
+.group-label { font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+.caption { margin: 7px 0 0; font-size: 11px; color: var(--muted); }
+.divider { height: 1px; background: var(--line); margin: 4px 0 18px; }
+
+/* Segmented control (graphics tier) */
+.seg { display: flex; gap: 4px; padding: 4px; background: var(--inset); border-radius: 11px; }
+.tier {
+  flex: 1; padding: 9px 4px; border-radius: 8px; border: 1px solid transparent;
+  background: transparent; color: var(--muted); font: inherit; font-size: 12px;
+  font-weight: 600; cursor: pointer; transition: color .15s ease, background .15s ease;
+}
+.tier:hover { color: var(--text); }
+.tier.active { background: var(--card); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent-line); }
+
+/* Buttons */
+.btn {
+  width: 100%; padding: 13px 14px; border-radius: 10px; border: 1px solid transparent;
+  font: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .08s ease;
+}
+.btn:active { transform: scale(0.99); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.3); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { background: var(--accent-strong); }
+.btn-outline { background: transparent; color: var(--text); border-color: var(--line); }
+.btn-outline:hover { border-color: var(--accent-line); color: var(--accent); }
+.btn-ghost { background: transparent; color: var(--muted); padding: 11px; font-weight: 500; }
+.btn-ghost:hover { color: var(--accent); }
+.btn:focus-visible, .tier:focus-visible { outline: 2px solid var(--accent-line); outline-offset: 2px; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.hint { margin: 14px 0 0; min-height: 14px; text-align: center; font-size: 11px; color: var(--muted); }
+
+/* Form controls (Record page) */
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field > label { font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--faint); }
+.field input, .field select {
+  width: 100%; box-sizing: border-box; padding: 10px 11px; border-radius: 9px;
+  background: var(--inset); color: var(--text); border: 1px solid var(--line);
+  font: inherit; font-size: 13px;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--accent-line); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* Footer cross-link */
+.crosslink {
+  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 50;
+  font-size: 11.5px; letter-spacing: 0.06em; color: var(--muted); text-decoration: none;
+  padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+  background: oklch(0.16 0.012 245 / 0.7); backdrop-filter: blur(4px); transition: color .15s, border-color .15s;
+}
+.crosslink:hover { color: var(--accent); border-color: var(--accent-line); }
+#overlay.hidden ~ .crosslink { opacity: 0; pointer-events: none; }
+
+/* ── In-scene HUD ─────────────────────────────────────────────── */
+#hud {
+  position: fixed; left: 10px; bottom: 10px;
+  font-size: 11px; color: oklch(0.7 0.015 245 / 0.6); pointer-events: none;
+  background: oklch(0.13 0.01 245 / 0.35); padding: 4px 8px; border-radius: 6px;
+  border: 1px solid var(--line); font-variant-numeric: tabular-nums;
+}
+#back-hint {
+  position: fixed; left: 50%; bottom: 36px; transform: translateX(-50%);
+  font-size: 11px; letter-spacing: 0.12em; color: oklch(1 0 0 / 0.7);
+  text-transform: uppercase; pointer-events: none;
+  opacity: 0; transition: opacity 1.2s ease; text-shadow: 0 1px 3px oklch(0 0 0 / 0.6);
+}
+#back-hint kbd {
+  background: oklch(0.2 0.012 245 / 0.85); border: 1px solid oklch(1 0 0 / 0.18);
+  padding: 1px 6px; border-radius: 4px; font-size: 11px; color: var(--text);
+}
+#back-hint.show { opacity: 1; }
+
+/* While capturing, hide DOM chrome (the canvas capture excludes DOM anyway, this
+   is just a clean live preview). */
+body.recording #hud, body.recording .crosslink { display: none !important; }

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Infinite Forest</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="hud"><span id="stats">initializing…</span></div>
+    <div id="back-hint"><kbd>Esc</kbd> or ✕ Exit to return</div>
+
+    <div id="overlay">
+      <div id="loading"><div class="ring"></div><div class="txt">Loading forest…</div></div>
+      <div class="card">
+        <h1>Infinite Forest</h1>
+        <p class="tagline">volumetric sun · procedural exploration</p>
+
+        <div class="group">
+          <div class="group-label">Graphics quality</div>
+          <div class="seg" role="group" aria-label="Graphics quality">
+            <button class="tier" data-tier="low" type="button">Low</button>
+            <button class="tier" data-tier="medium" type="button">Medium</button>
+            <button class="tier" data-tier="high" type="button">High</button>
+          </div>
+          <p class="caption" id="tier-caption"></p>
+        </div>
+
+        <div class="group">
+          <div class="group-label">Forest</div>
+          <button id="open-settings" class="btn btn-outline" type="button">⚙ Species · density · groves</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="group" style="margin-bottom:0;">
+          <div class="group-label">How to explore</div>
+          <div class="modes">
+            <button id="mode-demo" class="btn btn-primary" type="button">Demo</button>
+            <button id="mode-free" class="btn btn-outline" type="button">Walk</button>
+          </div>
+          <button id="mode-inspect" class="btn btn-ghost" type="button">Inspect a tree →</button>
+        </div>
+
+        <p class="hint" id="splash-hint"></p>
+      </div>
+    </div>
+
+    <a class="crosslink" href="./record.html">● Record a clip →</a>
+
+    <script type="module" src="/src/explore.js"></script>
+  </body>
+</html>
