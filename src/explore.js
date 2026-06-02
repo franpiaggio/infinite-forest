@@ -66,6 +66,7 @@ function chooseMode(mode) {
   started = true;
   audio.startAmbient();          // the click is the gesture audio needs
   audio.addButtons();
+  audio.startMusic();            // music autoplays from the first interaction
   btnFree.disabled = btnDemo.disabled = true;
   if (btnInspect) btnInspect.disabled = true;
   overlay.classList.add('loading');

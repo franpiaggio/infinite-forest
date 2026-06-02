@@ -19,6 +19,17 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
   music.loop = true; music.preload = 'auto'; music.volume = musicVol;
 
   let ambientStarted = false, musicOn = false, buttonsAdded = false;
+  let paintMus = () => {};   // re-bound once the music button exists
+
+  // Start the music track from the top (call from a user gesture). Used for
+  // autoplay on the first interaction.
+  function startMusic() {
+    if (musicOn) return;
+    musicOn = true;
+    music.currentTime = 0;
+    music.play().catch(() => { musicOn = false; paintMus(); });
+    paintMus();
+  }
 
   function startAmbient() {
     if (ambientStarted) return;
@@ -53,7 +64,7 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
     const mus = document.createElement('button');
     mus.type = 'button'; mus.classList.add('ui-toggleable');
     mus.style.cssText = AUDIO_BTN_CSS + 'right:60px;';
-    const paintMus = () => { mus.textContent = '🎵'; mus.style.opacity = musicOn ? '1' : '0.45'; mus.title = musicOn ? 'Stop music' : 'Play music'; };
+    paintMus = () => { mus.textContent = '🎵'; mus.style.opacity = musicOn ? '1' : '0.45'; mus.title = musicOn ? 'Stop music' : 'Play music'; };
     mus.addEventListener('click', () => {
       musicOn = !musicOn;
       if (musicOn) { music.currentTime = 0; music.play().catch(() => { musicOn = false; paintMus(); }); }
@@ -64,5 +75,5 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
     document.body.appendChild(mus);
   }
 
-  return { ambient, music, startAmbient, addButtons };
+  return { ambient, music, startAmbient, addButtons, startMusic };
 }

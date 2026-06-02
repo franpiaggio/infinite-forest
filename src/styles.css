@@ -121,3 +121,7 @@ h1 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: 0.01em; text-
 /* While capturing, hide DOM chrome (the canvas capture excludes DOM anyway, this
    is just a clean live preview). */
 body.recording #hud, body.recording .crosslink { display: none !important; }
+
+/* The fps/tree-count stats are dev info, not for the public build — and on mobile
+   they overlapped the sound/music icons. Hidden everywhere. */
+#hud { display: none !important; }

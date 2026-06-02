@@ -165,7 +165,8 @@ post-effects run — Low drops shadows/godrays/bloom/SMAA to run on weak phones.
 
 ## Credits
 
-Audio (`src/assets/forest.mp3`, `src/assets/pine-drift.mp3`) and tree/leaf/grass
+The music track (`src/assets/pine-drift.mp3`) was made specifically for this
+project. The ambient loop (`src/assets/forest.mp3`) and the tree/leaf/grass
 textures are third-party assets — verify usage rights before publishing clips.
 Tree generation by ez-tree; grass and tree techniques after the Codrops articles
 cited above.
