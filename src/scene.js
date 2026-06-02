@@ -165,7 +165,7 @@ export function bootScene({
 
   if (hud && mobile) {
     const rb = makeHudBtn('Random', randomizeForest);
-    rb.style.cssText += 'position:fixed;top:56px;left:12px;z-index:42;';
+    rb.style.cssText += 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:42;';
     document.body.appendChild(rb);
     cleanup(() => rb.remove());
   }
