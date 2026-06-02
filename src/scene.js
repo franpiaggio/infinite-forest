@@ -30,7 +30,7 @@ import { applySeasonToLeaf, setSeason, buildSeasonParticles } from './seasons.js
 export function bootScene({
   mount, statsEl = null, backHintEl = null,
   preset, mode = 'demo', seed = 0, season = 'verano',
-  mobile = false, hud = true, gui = true, onExit = null,
+  mobile = false, hud = true, gui = true, onExit = null, audio = null,
 }) {
   const cleanups = [];
   const cleanup = (fn) => cleanups.push(fn);
@@ -79,6 +79,7 @@ export function bootScene({
   if (mode === 'inspect') {
     const insp = buildInspector(renderer, scene, camera, preset, { onReturnToMenu: requestExit });
     if (insp?.dispose) cleanup(insp.dispose);
+    if (audio) cleanup(audio.addButtons());   // 🔊/🎵 bottom-right in the viewer
     return { renderer, canvas: renderer.domElement, camera, scene, ready: Promise.resolve(), dispose, isAuto: false };
   }
 
@@ -168,6 +169,8 @@ export function bootScene({
     rb.style.cssText += 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:42;';
     document.body.appendChild(rb);
     cleanup(() => rb.remove());
+    // Mobile keeps the 🔊/🎵 fixed at the bottom-right.
+    if (audio) cleanup(audio.addButtons());
   }
 
   // ── Camera controller for the chosen mode ──
@@ -229,6 +232,8 @@ export function bootScene({
     placeBtn('Exit', requestExit);
     placeBtn('Randomize', randomizeForest);
     placeBtn('Hide UI', () => document.body.classList.add('ui-hidden'));
+    // Desktop: 🔊 / 🎵 sit in the same top bar, after the buttons.
+    if (audio) cleanup(audio.addButtons({ container: btnBar }));
 
     const restore = makeHudBtn('', () => document.body.classList.remove('ui-hidden'));
     restore.className = 'ui-restore';

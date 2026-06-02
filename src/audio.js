@@ -5,9 +5,8 @@
 import forestAudioUrl from './assets/forest.mp3';
 import musicUrl from './assets/pine-drift.mp3';
 
-const AUDIO_BTN_CSS =
-  'position:fixed;bottom:12px;z-index:2147483647;width:40px;height:40px;' +
-  'border-radius:8px;background:rgba(28,35,42,0.82);color:#cfd5dc;' +
+const AUDIO_BTN_BASE =
+  'width:40px;height:40px;border-radius:8px;background:rgba(28,35,42,0.82);color:#cfd5dc;' +
   'border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(4px);cursor:pointer;' +
   'font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;';
 
@@ -18,7 +17,7 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
   const music = new Audio(musicUrl);
   music.loop = true; music.preload = 'auto'; music.volume = musicVol;
 
-  let ambientStarted = false, musicOn = false, buttonsAdded = false;
+  let ambientStarted = false, musicOn = false;
   let paintMus = () => {};   // re-bound once the music button exists
 
   // Start the music track from the top (call from a user gesture). Used for
@@ -45,13 +44,17 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
     }).catch(() => { /* autoplay blocked — the toggle resumes it */ });
   }
 
-  function addButtons() {
-    if (buttonsAdded) return;
-    buttonsAdded = true;
+  // Add the 🔊 / 🎵 buttons. Pass a `container` to drop them inline (e.g. the
+  // desktop top HUD bar, after the other buttons); otherwise they're fixed to the
+  // bottom-right (mobile). Returns a remover so the caller can tie them to the
+  // session lifecycle.
+  function addButtons({ container = null } = {}) {
+    const inBar = !!container;
+    const parent = container || document.body;
 
     const snd = document.createElement('button');
     snd.type = 'button'; snd.classList.add('ui-toggleable');
-    snd.style.cssText = AUDIO_BTN_CSS + 'right:12px;';
+    snd.style.cssText = inBar ? AUDIO_BTN_BASE : ('position:fixed;bottom:12px;right:12px;z-index:2147483647;' + AUDIO_BTN_BASE);
     const paintSnd = () => { snd.textContent = ambient.muted ? '🔇' : '🔊'; snd.title = ambient.muted ? 'Unmute ambience' : 'Mute ambience'; };
     snd.addEventListener('click', () => {
       ambient.muted = !ambient.muted;
@@ -59,11 +62,10 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
       paintSnd();
     });
     paintSnd();
-    document.body.appendChild(snd);
 
     const mus = document.createElement('button');
     mus.type = 'button'; mus.classList.add('ui-toggleable');
-    mus.style.cssText = AUDIO_BTN_CSS + 'right:60px;';
+    mus.style.cssText = inBar ? AUDIO_BTN_BASE : ('position:fixed;bottom:12px;right:60px;z-index:2147483647;' + AUDIO_BTN_BASE);
     paintMus = () => { mus.textContent = '🎵'; mus.style.opacity = musicOn ? '1' : '0.45'; mus.title = musicOn ? 'Stop music' : 'Play music'; };
     mus.addEventListener('click', () => {
       musicOn = !musicOn;
@@ -72,7 +74,11 @@ export function createAudio({ ambientVol = 0.5, musicVol = 0.6 } = {}) {
       paintMus();
     });
     paintMus();
-    document.body.appendChild(mus);
+
+    // In the bar: 🔊 then 🎵 (left→right). Fixed: 🔊 at right:12, 🎵 at right:60.
+    parent.appendChild(snd);
+    parent.appendChild(mus);
+    return () => { snd.remove(); mus.remove(); paintMus = () => {}; };
   }
 
   return { ambient, music, startAmbient, addButtons, startMusic };

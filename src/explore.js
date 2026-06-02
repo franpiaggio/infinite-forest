@@ -65,7 +65,6 @@ function chooseMode(mode) {
   if (started) return;
   started = true;
   audio.startAmbient();          // the click is the gesture audio needs
-  audio.addButtons();
   audio.startMusic();            // music autoplays from the first interaction
   btnFree.disabled = btnDemo.disabled = true;
   if (btnInspect) btnInspect.disabled = true;
@@ -74,7 +73,7 @@ function chooseMode(mode) {
     current = bootScene({
       mount: appEl, statsEl, backHintEl: backHint,
       preset: getPreset(selectedTier), mode, seed: chosenSeed, season: chosenSeason,
-      mobile: MOBILE, hud: true, gui: !MOBILE, onExit: returnToMenu,
+      mobile: MOBILE, hud: true, gui: !MOBILE, onExit: returnToMenu, audio,
     });
     revealWhenReady(current.ready);
   });
